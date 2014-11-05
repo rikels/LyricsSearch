@@ -2,14 +2,15 @@
   * ViewLyrics Open Searcher
   * Developed by PedroHLC
   * Converted to python by Rikels
-  * Last update: 17-10-2014
+  * Last update: 5-11-2014
   * You'll need to download pycurl and xmltodict
-  * Easiest method to do so: "(sudo) pip install pycurl"
+  * Easiest method to do so: "(sudo) pip install pycurl xmltodict"
 '''
 
 import hashlib
 import pycurl
 import StringIO
+import io
 import httplib, urllib
 import xmltodict
 
@@ -103,6 +104,7 @@ try:
 	search_result = http_post(search_url, search_encquery, search_useragent);
 except:
 	print("something went wrong, could be a lot of things :(")
+
 def vl_dec(data):
 	magickey = data[1]
 	result = ""
@@ -120,13 +122,62 @@ def vl_dec(data):
 			result += chr(ord(data[i]) ^ magickey)
 	return(result)
 
+def fn_download_store(url,max_retry=5,path = "./", name = ""):
+	if name == "":
+		name = url.split("/")[-1]
+	else:
+		pass
+	print(url)
+	curl = pycurl.Curl()
+	curl.setopt(pycurl.FOLLOWLOCATION, 1)
+	curl.setopt(pycurl.MAXREDIRS, 5)
+	curl.setopt(pycurl.TIMEOUT, 4)
+	curl.setopt(pycurl.SSL_VERIFYHOST, 0)
+	curl.setopt(pycurl.SSL_VERIFYPEER, 0)
+	curl.setopt(pycurl.URL, url)
+	#creating a string to be able to store the retrieved data in
+	curl_data = io.BytesIO()
+	#setting the option to write the retrieved data to the string
+	curl.setopt(pycurl.WRITEFUNCTION, curl_data.write)
+	try:
+		curl.perform()
+	except:
+		pass
+	retry_count = 0
+	while (curl_data.getvalue() == "") and (retry_count < max_retry):
+		try:
+			curl.perform()
+			retry_count += 1
+		except:
+			retry_count += 1
+			pass
+	
+	if curl_data.getvalue() != "":
+		#writing the data to a file
+		with open(path+name,"wb") as curl_file:
+			curl_file.write(curl_data.getvalue())
+
 if('search_result' not in globals()):
 	#didn't receive a reply from the server
 	print ("FAILED")
 else:
 	#Server returned possible answers
 	result = vl_dec(search_result)
-	print(result)
 	result = xmltodict.parse(result)
+	i = 0
 	for item in result["return"]["fileinfo"]:
-	print(u"{artist} - {title}.{file_type}".format(artist = item["@artist"], title = item["@title"], file_type = item["@link"].split(".")[-1]))
+		try:
+			rate = item["@rate"]
+		except:
+			rate = 0
+		print(u"{number},	rating: {rate}	{artist} - {title}.{file_type}".format(number = i, rate = rate ,artist = item["@artist"], title = item["@title"], file_type = item["@link"].split(".")[-1]))
+		i += 1
+try:
+	number = int(raw_input("Which one do you want to download? (number): "))
+except:
+	number = int(raw_input("Which one do you want to download? (!!NUMBER!!): "))
+url = str(result["return"]["@server_url"] + result["return"]["fileinfo"][number]["@link"])
+print("grabbing")
+print(url)
+filename = "{artist} - {title}.{file_type}".format(artist = result["return"]["fileinfo"][number]["@artist"], title = result["return"]["fileinfo"][number]["@title"], file_type = result["return"]["fileinfo"][number]["@link"].split(".")[-1])
+fn_download_store(url=url, name=filename)
