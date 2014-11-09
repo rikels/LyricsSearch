@@ -131,12 +131,13 @@ def MiniLyrics(artist,title):
     if('search_result' not in locals()):
         #didn't receive a reply from the server
         print ("FAILED")
+        return("Script might be broken :(")
     else:
         #Server returned possible answers
         xml = vl_dec(search_result)
         xml = xmltodict.parse(xml)
         server_url = str(xml["return"]["@server_url"])
-        result = []
+        results = []
         i = 0
         for item in xml["return"]["fileinfo"]:
             #because the rating will sometimes not be filled, it could give an error, so the rating will be 0 for unrated items
@@ -144,9 +145,11 @@ def MiniLyrics(artist,title):
                 rating = item["@rate"]
             except:
                 rating = 0
-            result.append({'artist': item["@artist"], 'title': item["@title"], 'rating': float(rating), 'filetype': item["@link"].split(".")[-1], 'url': (server_url + item["@link"])})
+            results.append({'artist': item["@artist"], 'title': item["@title"], 'rating': float(rating), 'filetype': item["@link"].split(".")[-1], 'url': (server_url + item["@link"])})
             i += 1
-    return(result)
+        results = sorted(results, key = lambda result: (result["rating"]))
+        results.reverse()
+    return(results)
 
 
 #function to return lyrics grabbed from lyricswikia
