@@ -144,7 +144,7 @@ def MiniLyrics(artist,title):
                 rating = item["@rate"]
             except:
                 rating = 0
-            result.append({'artist': item["@artist"], 'title': item["@title"], 'rating': rating, 'filetype': item["@link"].split(".")[-1], 'url': (server_url + item["@link"])})
+            result.append({'artist': item["@artist"], 'title': item["@title"], 'rating': float(rating), 'filetype': item["@link"].split(".")[-1], 'url': (server_url + item["@link"])})
             i += 1
     return(result)
 
