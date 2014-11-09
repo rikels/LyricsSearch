@@ -23,7 +23,7 @@ from BeautifulSoup import BeautifulSoup
 import re
 
 #function to return python workable results from Minilyrics
-def get_Minilyric(artist,title):
+def MiniLyrics(artist,title):
     search_url = "search.crintsoft.com/searchlyrics.htm"
     search_query_base = "<?xml version='1.0' encoding='utf-8' standalone='yes' ?><searchV1 client=\"ViewLyricsOpenSearcher\" artist=\"{artist}\" title=\"{title}\" OnlyMatched=\"1\" />"
     search_useragent = "MiniLyrics";
@@ -136,7 +136,7 @@ def get_Minilyric(artist,title):
         xml = vl_dec(search_result)
         xml = xmltodict.parse(xml)
         server_url = str(xml["return"]["@server_url"])
-        result = {}
+        result = []
         i = 0
         for item in xml["return"]["fileinfo"]:
             #because the rating will sometimes not be filled, it could give an error, so the rating will be 0 for unrated items
@@ -144,13 +144,13 @@ def get_Minilyric(artist,title):
                 rating = item["@rate"]
             except:
                 rating = 0
-            result[i] = {'artist': item["@artist"], 'title': item["@title"], 'rating': rating, 'filetype': item["@link"].split(".")[-1], 'url': server_url + item["@link"]}
+            result.append({'artist': item["@artist"], 'title': item["@title"], 'rating': rating, 'filetype': item["@link"].split(".")[-1], 'url': (server_url + item["@link"])})
             i += 1
     return(result)
 
 
 #function to return lyrics grabbed from lyricswikia
-def get_lyric_Wikia(artist,title):
+def LyricWikia(artist,title):
     curl = pycurl.Curl()
     curl.setopt(pycurl.FOLLOWLOCATION, 1)
     curl.setopt(curl.MAXREDIRS, 5)
