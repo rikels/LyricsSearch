@@ -25,8 +25,8 @@ import re
 #function to return python workable results from Minilyrics
 def MiniLyrics(artist,title):
     search_url = "search.crintsoft.com/searchlyrics.htm"
-    search_query_base = "<?xml version='1.0' encoding='utf-8' standalone='yes' ?><searchV1 client=\"ViewLyricsOpenSearcher\" artist=\"{artist}\" title=\"{title}\" OnlyMatched=\"1\" />"
-    search_useragent = "MiniLyrics";
+    search_query_base = "<?xml version='1.0' encoding='utf-8' standalone='yes' ?><searchV1 client=\"ViewLyricsOpenSearcher\" artist=\"{artist}\" title=\"{title}\" OnlyMatched=\"1\" />".encode("utf-8")
+    search_useragent = "MiniLyrics"
     search_md5watermark = "Mlv1clt4.0"
 
     #hex is a registered value in python, so i used hexx as an alternative
@@ -41,7 +41,7 @@ def MiniLyrics(artist,title):
     def vl_enc(data, md5_extra):
         datalen = len(data)
         md5 = hashlib.md5()
-        md5.update(str(data)+str(md5_extra))
+        md5.update(data+md5_extra)
         hasheddata = hexToStr(md5.hexdigest())
         j = 0
         i = 0
@@ -145,7 +145,15 @@ def MiniLyrics(artist,title):
                 rating = item["@rate"]
             except:
                 rating = 0
-            results.append({'artist': item["@artist"], 'title': item["@title"], 'rating': float(rating), 'filetype': item["@link"].split(".")[-1], 'url': (server_url + item["@link"])})
+            try:
+            	artist = item["@artist"]
+            except:
+            	artist = None
+            try:
+            	title = item["@title"]
+            except:
+            	title = None
+            results.append({'artist': artist, 'title': title, 'rating': float(rating), 'filetype': item["@link"].split(".")[-1], 'url': (server_url + item["@link"])})
             i += 1
         results = sorted(results, key = lambda result: (result["rating"]))
         results.reverse()
