@@ -161,7 +161,7 @@ def MiniLyrics(artist,title):
 	return(results)
 
 
-#function to return lyrics grabbed from lyricswikia
+#function to return lyrics grabbed from lyricwikia
 def LyricWikia(artist,title):
 	url = 'http://lyrics.wikia.com/api.php?artist={artist}&song={title}&fmt=json'.format(artist=artist,title=title).replace(" ", "%20")
 	r = requests.get(url, timeout=15)
