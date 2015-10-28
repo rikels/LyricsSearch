@@ -173,8 +173,6 @@ def LyricWikia(artist,title):
 	if returned["lyrics"] != "Not found":
 		#set the url to the url we just recieved, and retrieving it
 		r = requests.get(returned["url"], timeout=15)
-		#curl.setopt(curl.URL, str(curl_return["url"]))
-		#curl.perform()
 		soup = BeautifulSoup(r.text)
 		soup = soup.find("div", {"class": "lyricbox"})
 		[elem.extract() for elem in soup.findAll('div')]
