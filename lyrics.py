@@ -161,7 +161,7 @@ def MiniLyrics(artist,title):
 	return(results)
 
 
-#function to return lyrics grabbed from lyricswikia
+#function to return lyrics grabbed from lyricwikia
 def LyricWikia(artist,title):
 	url = 'http://lyrics.wikia.com/api.php?artist={artist}&song={title}&fmt=json'.format(artist=artist,title=title).replace(" ", "%20")
 	r = requests.get(url, timeout=15)
@@ -173,8 +173,6 @@ def LyricWikia(artist,title):
 	if returned["lyrics"] != "Not found":
 		#set the url to the url we just recieved, and retrieving it
 		r = requests.get(returned["url"], timeout=15)
-		#curl.setopt(curl.URL, str(curl_return["url"]))
-		#curl.perform()
 		soup = BeautifulSoup(r.text)
 		soup = soup.find("div", {"class": "lyricbox"})
 		[elem.extract() for elem in soup.findAll('div')]
